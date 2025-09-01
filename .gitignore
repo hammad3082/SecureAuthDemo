@@ -1,0 +1,27 @@
+# Visual Studio temporary files
+.vs/
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+logs/
+Logs/
+
+# Notes
+Notes/
+
+# Packages
+*.nupkg
+*.snupkg
+packages/
+
+# Others
+.vscode/
+.idea/
