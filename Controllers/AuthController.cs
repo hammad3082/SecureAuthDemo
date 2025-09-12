@@ -14,10 +14,11 @@ namespace SecureAuthDemo.Controllers
         {
             _auth = authService;
         }
+
         [HttpGet]
         public string Get()
         {
-            return "hello World";
+            return "Hello World";
         }
 
         [HttpPost("register")]
@@ -31,6 +32,21 @@ namespace SecureAuthDemo.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            try
+            {
+                string token = await _auth.LoginAsync(request);
+
+                return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { error = ex.Message });
             }
         }
     }

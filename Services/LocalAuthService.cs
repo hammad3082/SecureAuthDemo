@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using SecureAuthDemo.Models;
 using SecureAuthDemo.Repositories;
 using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace SecureAuthDemo.Services
 {
@@ -49,6 +54,38 @@ namespace SecureAuthDemo.Services
                 return false;
 
             return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+        }
+
+        public async Task<string> LoginAsync(LoginRequest request)
+        {
+            var user = await _userRepo.GetByUsernameAsync(request.Username);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                throw new Exception("Invalid username or password");
+            }
+
+            return GenerateJwtToken(user);
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("tANYFuPaKNR0yGvcTmBru1999lWiapAH"); // Will Store securely in config later
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }
