@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SecureAuthDemo.Configuration;
 using SecureAuthDemo.Data;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Repositories;
@@ -59,7 +60,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Authorization (placeholder)
+
+var jwtSection = builder.Configuration.GetSection("JwtSettings");
+
+builder.Services.Configure<JwtSettings>(jwtSection);
+
+var jwtSettings = jwtSection.Get<JwtSettings>();
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -70,12 +78,20 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("tANYFuPaKNR0yGvcTmBru1999lWiapAH")),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Key)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true
     };
 });
-//builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireClaim("Role", "Admin"));
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

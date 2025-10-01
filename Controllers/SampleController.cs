@@ -20,5 +20,12 @@ namespace SecureAuthDemo.Controllers
             var username = User.Identity?.Name;
             return Ok($"Hello {username}, you accessed a protected endpoint");
         }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpGet("admin-data")]
+        public IActionResult GetAdminData()
+        {
+            return Ok("Only Admins can see this!");
+        }
     }
 }
