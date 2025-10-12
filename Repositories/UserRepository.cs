@@ -18,6 +18,10 @@ namespace SecureAuthDemo.Repositories
             return await _db.Users.FirstOrDefaultAsync(x => x.Username == username);
         }
 
+        public async Task<User> GetByIdAsync(int userId)
+        {
+            return await _db.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        }
         public async Task SaveChangesAsync()
         {
             await _db.SaveChangesAsync();

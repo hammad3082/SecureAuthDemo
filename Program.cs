@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SecureAuthDemo.Configuration;
 using SecureAuthDemo.Data;
+using SecureAuthDemo.Extensions;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Repositories;
 using SecureAuthDemo.Services;
@@ -60,13 +61,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 var jwtSection = builder.Configuration.GetSection("JwtSettings");
-
 builder.Services.Configure<JwtSettings>(jwtSection);
-
 var jwtSettings = jwtSection.Get<JwtSettings>();
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -93,9 +90,10 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("Role", "Admin"));
 });
 
+builder.Services.AddRedis(builder.Configuration);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 
 // DI: repositories & services (simple)
 builder.Services.AddScoped<IUserRepository, UserRepository>();

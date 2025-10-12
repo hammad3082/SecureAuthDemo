@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using SecureAuthDemo.Configuration;
 using Microsoft.Extensions.Options;
+using Azure.Core;
 
 namespace SecureAuthDemo.Services
 {
@@ -17,11 +18,13 @@ namespace SecureAuthDemo.Services
     {
 
         private readonly IUserRepository _userRepo;
+        private readonly ICacheService _cacheService;
         private readonly JwtSettings _jwtSettings;
-        public LocalAuthService(IUserRepository userRepo, IOptions<JwtSettings> jwtOptions)
+        public LocalAuthService(IUserRepository userRepo, IOptions<JwtSettings> jwtOptions, ICacheService cacheService)
         {
             _userRepo = userRepo;
             _jwtSettings = jwtOptions.Value;
+            _cacheService = cacheService;
         }
         public async Task RegisterAsync(RegisterRequest request)
         {
@@ -46,11 +49,9 @@ namespace SecureAuthDemo.Services
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
-
         public async Task<bool> ValidateUserAsync(string username, string password)
         {
             var user = await _userRepo.GetByUsernameAsync(username);
@@ -59,8 +60,7 @@ namespace SecureAuthDemo.Services
 
             return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
         }
-
-        public async Task<string> LoginAsync(LoginRequest request)
+        public async Task<(string accessToken, string refreshToken)> LoginAsync(LoginRequest request)
         {
             var user = await _userRepo.GetByUsernameAsync(request.Username);
 
@@ -69,9 +69,27 @@ namespace SecureAuthDemo.Services
                 throw new Exception("Invalid username or password");
             }
 
-            return GenerateJwtToken(user);
-        }
+            var accessToken = GenerateJwtToken(user);
+            var refreshToken = Guid.NewGuid().ToString();
 
+            await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
+
+            return (accessToken, refreshToken);
+        }
+        public async Task<string> RefreshTokenAsync(string refreshToken)
+        {
+            var userId = await _cacheService.GetAsync(refreshToken);
+            if (userId == null)
+                throw new Exception("Invalid or expired refresh token");
+
+            var user = await _userRepo.GetByIdAsync(Convert.ToInt32(userId));
+            if (user == null)
+                throw new Exception("User not found");
+
+            var newAccessToken = GenerateJwtToken(user);
+
+            return newAccessToken;
+        }
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -79,8 +97,8 @@ namespace SecureAuthDemo.Services
 
             var claims = new List<Claim>
             {
-                 new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
 
             var RoleClaim = new Claim("Role", "Admin");

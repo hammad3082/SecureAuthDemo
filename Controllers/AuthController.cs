@@ -40,14 +40,21 @@ namespace SecureAuthDemo.Controllers
         {
             try
             {
-                string token = await _auth.LoginAsync(request);
+                var tokens = await _auth.LoginAsync(request);
 
-                return Ok(new { Token = token });
+                return Ok(new { accessToken = tokens.accessToken, refreshToken = tokens.refreshToken });
             }
             catch (Exception ex)
             {
                 return Unauthorized(new { error = ex.Message });
             }
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            var newAccessToken = await _auth.RefreshTokenAsync(request.RefreshToken);
+            return Ok(new { accessToken = newAccessToken });
         }
     }
 }
