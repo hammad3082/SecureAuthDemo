@@ -117,5 +117,40 @@ namespace SecureAuthDemo.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        public async Task<object> GenerateTokensForGoogleUserAsync(string email, string name)
+        {
+            //var user = await _userRepo.GetByEmailAsync(email);
+            var user = await _userRepo.GetByUsernameAsync(name);
+
+            if (user == null)
+            {
+                user = new User
+                {
+                    Username = name,
+                    Email = email,
+                    PasswordHash = "",
+                    CreatedAt = DateTime.UtcNow,
+                    //Role = "User"
+                };
+               
+                await _userRepo.AddAsync(user);
+                await _userRepo.SaveChangesAsync();
+
+                // To get userID
+                user = await _userRepo.GetByUsernameAsync(name);
+            }
+
+            var accessToken = GenerateJwtToken(user);
+
+            var refreshToken = Guid.NewGuid().ToString();
+
+            await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
+
+            return new
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+        }
     }
 }
