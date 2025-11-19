@@ -87,6 +87,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.Configure<GoogleAuthSettings>(
     builder.Configuration.GetSection("GoogleAuthSettings"));
 
+builder.Services.Configure<AwsCognitoSettings>(
+    builder.Configuration.GetSection("AwsCognitoSettings"));
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy =>
@@ -102,6 +105,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, LocalAuthService>();
 builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+builder.Services.AddScoped<ICognitoAuthService, CognitoAuthService>();  
 
 var app = builder.Build();
 

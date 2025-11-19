@@ -4,16 +4,22 @@ using SecureAuthDemo.Services;
 namespace SecureAuthDemo.Controllers
 {
     [ApiController]
-    [Route("api/auth/google")]
-    public class GoogleAuthController(IGoogleAuthService googleAuthService, IAuthService authService) : ControllerBase
+    [Route("api/auth/aws")]
+    public class CognitoController : Controller
     {
-        private readonly IGoogleAuthService _googleAuthService = googleAuthService ;
-        private readonly IAuthService _authService = authService;
+        private readonly ICognitoAuthService _cognitoAuthService;
+        private readonly IAuthService _authService;
+
+        public CognitoController(ICognitoAuthService cognitoAuthService, IAuthService authService)
+        {
+            _cognitoAuthService = cognitoAuthService;
+            _authService = authService;
+        }
 
         [HttpGet("login")]
         public IActionResult Login()
         {
-            var url = _googleAuthService.GetGoogleLoginUrl();
+            var url = _cognitoAuthService.GetLoginUrl();
             //return Redirect(url);
             return Ok(new { LoginUrl = url });
         }
@@ -21,7 +27,7 @@ namespace SecureAuthDemo.Controllers
         [HttpGet("callback")]
         public async Task<IActionResult> Callback([FromQuery] string code)
         {
-            var userInfo = await _googleAuthService.GetUserInfoAsync(code);
+            var userInfo = await _cognitoAuthService.GetUserInfoAsync(code);
             if (userInfo.Email == null)
                 return BadRequest("Invalid Google token");
 

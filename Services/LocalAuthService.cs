@@ -117,7 +117,7 @@ namespace SecureAuthDemo.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public async Task<object> GenerateTokensForGoogleUserAsync(string email, string name)
+        public async Task<object> GenerateTokensForSSOUserAsync(string email, string name)
         {
             //var user = await _userRepo.GetByEmailAsync(email);
             var user = await _userRepo.GetByUsernameAsync(name);
