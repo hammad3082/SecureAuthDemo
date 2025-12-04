@@ -11,6 +11,7 @@ using System.Text;
 using SecureAuthDemo.Configuration;
 using Microsoft.Extensions.Options;
 using Azure.Core;
+using SecureAuthDemo.Services.Interfaces;
 
 namespace SecureAuthDemo.Services
 {

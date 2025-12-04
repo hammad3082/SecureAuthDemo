@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SecureAuthDemo.Models;
-using SecureAuthDemo.Services;
+using SecureAuthDemo.Services.Interfaces;
 
 namespace SecureAuthDemo.Controllers
 {

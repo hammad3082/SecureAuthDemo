@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace SecureAuthDemo.Services
 {
-    public class GoogleAuthService : IGoogleAuthService
+    public class GoogleAuthService : IExternalAuthService
     {
         private readonly HttpClient _httpClient;
         private readonly GoogleAuthSettings _googleAuthSettings;
@@ -16,14 +16,15 @@ namespace SecureAuthDemo.Services
             _googleAuthSettings = settings.Value;
             _httpClient = new HttpClient();
         }
-        public string GetGoogleLoginUrl()
+        public string GetLoginUrl(string state)
         {
             var url = $"https://accounts.google.com/o/oauth2/v2/auth?" +
                       $"client_id={_googleAuthSettings.ClientId}" +
                       $"&redirect_uri={_googleAuthSettings.RedirectUri}" +
                       $"&response_type=code" +
                       $"&scope=openid%20email%20profile" +
-                      $"&access_type=offline";
+                      $"&access_type=offline" +
+                      $"&state={state}";
 
             return url;
         }

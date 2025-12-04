@@ -1,8 +1,8 @@
 ﻿namespace SecureAuthDemo.Services
 {
-    public interface IGoogleAuthService
+    public interface IExternalAuthService
     {
-        string GetGoogleLoginUrl();
+        string GetLoginUrl(string state);
         Task<(string? Email, string? Name)> GetUserInfoAsync(string authorizationCode);
     }
 }

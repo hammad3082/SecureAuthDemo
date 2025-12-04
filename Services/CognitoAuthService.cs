@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace SecureAuthDemo.Services
 {
-    public class CognitoAuthService : ICognitoAuthService
+    public class CognitoAuthService : IExternalAuthService
     {
 
         private readonly HttpClient _httpClient;
@@ -21,7 +21,7 @@ namespace SecureAuthDemo.Services
             _httpClient = new HttpClient();
         }
 
-        public string GetLoginUrl()
+        public string GetLoginUrl(string state)
         {
             var domain = _awsCognitoSettings.Domain;
             var clientId = _awsCognitoSettings.ClientId;
@@ -31,7 +31,8 @@ namespace SecureAuthDemo.Services
                 $"?client_id={clientId}" +
                 $"&response_type=code" +
                 $"&scope=email+openid+phone" +
-                $"&redirect_uri={redirectUri}";
+                $"&redirect_uri={redirectUri}";// +
+                //$"state={state}";
         }
         public async Task<(string? Email, string? Name)> GetUserInfoAsync(string code)
         {
@@ -42,12 +43,10 @@ namespace SecureAuthDemo.Services
 
             var tokenUrl = $"{domain}/oauth2/token";
 
-            using var client = new HttpClient();
-
             // Basic Authorization header
             var authString = $"{clientId}:{clientSecret}";
             var authHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes(authString));
-            client.DefaultRequestHeaders.Authorization =
+            _httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Basic", authHeader);
 
             // Form body
@@ -58,7 +57,7 @@ namespace SecureAuthDemo.Services
                 { "redirect_uri", redirectUri }
             };
 
-            var response = await client.PostAsync(tokenUrl, new FormUrlEncodedContent(form));
+            var response = await _httpClient.PostAsync(tokenUrl, new FormUrlEncodedContent(form));
             var json = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
