@@ -36,6 +36,7 @@ builder.Services.AddControllers()
     {
         opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
 builder.Services.AddEndpointsApiExplorer(); 
 //builder.Services.AddSwaggerGen();
 
@@ -92,6 +93,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true
     };
 });
+
 builder.Services.Configure<GoogleAuthSettings>(
     builder.Configuration.GetSection("GoogleAuthSettings"));
 
@@ -137,51 +139,51 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         c.RoutePrefix = ""; // root
-       
-        // Inject Google Login button dynamically
-        //c.HeadContent = @"
-        //<script>
-        //window.addEventListener('load', () => {
-        //    const tryAddButton = () => {
-        //        const topbar = document.querySelector('.swagger-ui .topbar');
-        //        if (!topbar) {
-        //            setTimeout(tryAddButton, 500);
-        //            return;
-        //        }
 
-        //        if (!document.getElementById('google-login-btn')) {
-        //            const btn = document.createElement('button');
-        //            btn.id = 'google-login-btn';
-        //            btn.innerText = 'Login with Google';
-        //            btn.style.marginLeft = '10px';
-        //            btn.style.background = '#4285F4';
-        //            btn.style.color = 'white';
-        //            btn.style.border = 'none';
-        //            btn.style.padding = '8px 16px';
-        //            btn.style.borderRadius = '5px';
-        //            btn.style.cursor = 'pointer';
-        //            btn.onclick = async () => {
-        //                try {
-        //                    const response = await fetch('/api/auth/google/login');
-        //                    const data = await response.json();
-        //                    if (data.loginUrl) {
-        //                        window.open(data.loginUrl, '_blank');
-        //                    } else {
-        //                        alert('Login URL not found.');
-        //                    }
-        //                } catch (err) {
-        //                    alert('Failed to fetch Google login URL.');
-        //                    console.error(err);
-        //                }
-        //            };
-        //            topbar.appendChild(btn);
-        //        }
-        //    };
+        //Inject Google Login button dynamically
+        c.HeadContent = @"
+        <script>
+        window.addEventListener('load', () => {
+            const tryAddButton = () => {
+                const topbar = document.querySelector('.swagger-ui .topbar');
+                if (!topbar) {
+                    setTimeout(tryAddButton, 500);
+                    return;
+                }
 
-        //    tryAddButton();
-        //});
-        //</script>";
-        //btn.onclick = () => window.location.href = '/api/auth/google/login';
+                if (!document.getElementById('google-login-btn')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'google-login-btn';
+                    btn.innerText = 'Login with Google';
+                    btn.style.marginLeft = '10px';
+                    btn.style.background = '#4285F4';
+                    btn.style.color = 'white';
+                    btn.style.border = 'none';
+                    btn.style.padding = '8px 16px';
+                    btn.style.borderRadius = '5px';
+                    btn.style.cursor = 'pointer';
+                    btn.onclick = async () => {
+                        try {
+                            const response = await fetch('/api/auth/google/login');
+                            const data = await response.json();
+                            if (data.loginUrl) {
+                                window.open(data.loginUrl, '_blank');
+                            } else {
+                                alert('Login URL not found.');
+                            }
+                        } catch (err) {
+                            alert('Failed to fetch Google login URL.');
+                            console.error(err);
+                        }
+                    };
+                    topbar.appendChild(btn);
+                }
+            };
+
+            tryAddButton();
+        });
+        </script>";
+        //btn.onclick = () => window.location.href = '/api/auth/external/login';
 
     });     // Serve interactive Swagger UI
 }

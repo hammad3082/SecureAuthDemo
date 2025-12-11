@@ -31,8 +31,8 @@ namespace SecureAuthDemo.Services
                 $"?client_id={clientId}" +
                 $"&response_type=code" +
                 $"&scope=email+openid+phone" +
-                $"&redirect_uri={redirectUri}";// +
-                //$"state={state}";
+                $"&redirect_uri={redirectUri}" +
+                $"&state={state}";
         }
         public async Task<(string? Email, string? Name)> GetUserInfoAsync(string code)
         {

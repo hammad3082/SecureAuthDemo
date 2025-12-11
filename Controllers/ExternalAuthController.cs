@@ -25,8 +25,7 @@ namespace SecureAuthDemo.Controllers
             return Ok(new { LoginUrl = url });
         }
 
-        [HttpGet]
-        //[HttpGet("callback")]
+        [HttpGet("callback")]
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
             var tokens = await _flow.HandleCallbackAsync(code, state);

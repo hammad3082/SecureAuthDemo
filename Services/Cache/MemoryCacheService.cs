@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace SecureAuthDemo.Services.Implimentations
+namespace SecureAuthDemo.Services.Cache
 {
     public class MemoryCacheService : ICacheService
     {
