@@ -1,4 +1,4 @@
-﻿namespace SecureAuthDemo.Services
+﻿namespace SecureAuthDemo.Services.Cache
 {
     public interface ICacheService
     {

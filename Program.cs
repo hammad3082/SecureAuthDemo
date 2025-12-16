@@ -9,10 +9,14 @@ using SecureAuthDemo.Data;
 using SecureAuthDemo.Extensions;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Repositories;
-using SecureAuthDemo.Services;
+using SecureAuthDemo.Services.Auth.Abstractions;
+using SecureAuthDemo.Services.Auth.External;
+using SecureAuthDemo.Services.Auth.Local;
+using SecureAuthDemo.Services.Auth.State;
 using Serilog;
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +31,13 @@ builder.Host.UseSerilog();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+//builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer(); 
 //builder.Services.AddSwaggerGen();
 
@@ -84,6 +94,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true
     };
 });
+
 builder.Services.Configure<GoogleAuthSettings>(
     builder.Configuration.GetSection("GoogleAuthSettings"));
 
@@ -96,7 +107,9 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("Role", "Admin"));
 });
 
-builder.Services.AddRedis(builder.Configuration);
+builder.Services.AddCacheServices(builder.Configuration);
+
+//builder.Services.AddRedis(builder.Configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -104,14 +117,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // DI: repositories & services (simple)
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, LocalAuthService>();
-builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
-builder.Services.AddScoped<ICognitoAuthService, CognitoAuthService>();  
+builder.Services.AddScoped<ExternalAuthFlow>();
+builder.Services.AddScoped<IStateStore, StateStore>();
+
+builder.Services.AddTransient<GoogleAuthService>();
+builder.Services.AddTransient<CognitoAuthService>();
+builder.Services.AddSingleton<ExternalAuthServiceResolver>();
+//builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+//builder.Services.AddScoped<ICognitoAuthService, CognitoAuthService>();  
 
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
+app.UseRouting();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -122,10 +142,11 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         c.RoutePrefix = ""; // root
+
     });     // Serve interactive Swagger UI
 }
 
-app.UseRouting();
+//app.UseRouting();
 
 // Logs HTTP requests
 app.UseSerilogRequestLogging();
@@ -135,7 +156,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
-app.MapGet("test", () => "Hello there, This is working");
+//app.MapGet("test", () => "Hello there, This is working");
 app.MapControllers();
 
 app.Run();

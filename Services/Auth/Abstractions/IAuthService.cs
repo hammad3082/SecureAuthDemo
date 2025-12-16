@@ -1,6 +1,6 @@
 ﻿using SecureAuthDemo.Models;
 
-namespace SecureAuthDemo.Services
+namespace SecureAuthDemo.Services.Auth.Abstractions
 {
     public interface IAuthService
     {
