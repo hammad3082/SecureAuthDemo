@@ -11,10 +11,10 @@ using System.Text;
 using SecureAuthDemo.Configuration;
 using Microsoft.Extensions.Options;
 using Azure.Core;
-using SecureAuthDemo.Services.Interfaces;
 using SecureAuthDemo.Services.Cache;
+using SecureAuthDemo.Services.Auth.Abstractions;
 
-namespace SecureAuthDemo.Services
+namespace SecureAuthDemo.Services.Auth.Local
 {
     public class LocalAuthService : IAuthService
     {
@@ -134,7 +134,7 @@ namespace SecureAuthDemo.Services
                     CreatedAt = DateTime.UtcNow,
                     //Role = "User"
                 };
-               
+
                 await _userRepo.AddAsync(user);
                 await _userRepo.SaveChangesAsync();
 

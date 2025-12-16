@@ -2,9 +2,10 @@
 using Google.Apis.Auth;
 using Microsoft.Extensions.Options;
 using SecureAuthDemo.Configuration;
+using SecureAuthDemo.Services.Auth.Abstractions;
 using System.Text.Json;
 
-namespace SecureAuthDemo.Services
+namespace SecureAuthDemo.Services.Auth.External
 {
     public class GoogleAuthService : IExternalAuthService
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SecureAuthDemo.Enums;
 using SecureAuthDemo.Services;
-using SecureAuthDemo.Services.Implimentations;
+using SecureAuthDemo.Services.Auth.External;
 using System;
 
 namespace SecureAuthDemo.Controllers

@@ -1,23 +1,23 @@
 ﻿using SecureAuthDemo.Enums;
-using SecureAuthDemo.Services.Interfaces;
+using SecureAuthDemo.Services.Auth.Abstractions;
 
-namespace SecureAuthDemo.Services.Implimentations
+namespace SecureAuthDemo.Services.Auth.External
 {
     public class ExternalAuthFlow
     {
         private readonly IStateStore _stateStore;
         private readonly IAuthService _authService;
-        private readonly AuthServiceFactory _factory;
-        private readonly ILogger<ExternalAuthFlow> _logger; 
+        private readonly ExternalAuthServiceResolver _resolver;
+        private readonly ILogger<ExternalAuthFlow> _logger;
         private static readonly TimeSpan StateTtl = TimeSpan.FromMinutes(5);
 
         public ExternalAuthFlow(
-            AuthServiceFactory factory,
+            ExternalAuthServiceResolver resolver,
             IStateStore stateStore,
             IAuthService authService,
             ILogger<ExternalAuthFlow> logger)
         {
-            _factory = factory;
+            _resolver = resolver;
             _stateStore = stateStore;
             _logger = logger;
             _authService = authService;
@@ -30,7 +30,7 @@ namespace SecureAuthDemo.Services.Implimentations
 
             await _stateStore.SetStateAsync(state, provider, StateTtl);
 
-            var service = _factory.Get(provider);
+            var service = _resolver.Get(provider);
             var url = service.GetLoginUrl(state);
 
             return url;
@@ -50,7 +50,7 @@ namespace SecureAuthDemo.Services.Implimentations
             await _stateStore.RemoveStateAsync(state);
             _logger.LogInformation("State validated. Provider={Provider}", provider);
 
-            var service = _factory.Get(provider);
+            var service = _resolver.Get(provider);
 
             try
             {

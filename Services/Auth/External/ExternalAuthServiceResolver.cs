@@ -1,12 +1,13 @@
 ﻿using SecureAuthDemo.Enums;
+using SecureAuthDemo.Services.Auth.Abstractions;
 
-namespace SecureAuthDemo.Services
+namespace SecureAuthDemo.Services.Auth.External
 {
-    public class AuthServiceFactory
+    public class ExternalAuthServiceResolver
     {
         private readonly GoogleAuthService _google;
         private readonly CognitoAuthService _cognito;
-        public AuthServiceFactory(GoogleAuthService google, CognitoAuthService cognito)
+        public ExternalAuthServiceResolver(GoogleAuthService google, CognitoAuthService cognito)
         {
             _google = google;
             _cognito = cognito;

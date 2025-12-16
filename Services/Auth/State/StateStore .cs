@@ -1,9 +1,9 @@
 ﻿using SecureAuthDemo.Enums;
+using SecureAuthDemo.Services.Auth.Abstractions;
 using SecureAuthDemo.Services.Cache;
-using SecureAuthDemo.Services.Interfaces;
 using System.Text.Json;
 
-namespace SecureAuthDemo.Services.Implimentations
+namespace SecureAuthDemo.Services.Auth.State
 {
     public class StateStore : IStateStore
     {

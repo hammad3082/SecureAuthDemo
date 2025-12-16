@@ -6,8 +6,9 @@ using System.Text.Json;
 using System.Text;
 using Google.Apis.Auth.OAuth2.Responses;
 using System.IdentityModel.Tokens.Jwt;
+using SecureAuthDemo.Services.Auth.Abstractions;
 
-namespace SecureAuthDemo.Services
+namespace SecureAuthDemo.Services.Auth.External
 {
     public class CognitoAuthService : IExternalAuthService
     {

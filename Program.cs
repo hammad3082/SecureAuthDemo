@@ -9,9 +9,10 @@ using SecureAuthDemo.Data;
 using SecureAuthDemo.Extensions;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Repositories;
-using SecureAuthDemo.Services;
-using SecureAuthDemo.Services.Implimentations;
-using SecureAuthDemo.Services.Interfaces;
+using SecureAuthDemo.Services.Auth.Abstractions;
+using SecureAuthDemo.Services.Auth.External;
+using SecureAuthDemo.Services.Auth.Local;
+using SecureAuthDemo.Services.Auth.State;
 using Serilog;
 using System;
 using System.Text;
@@ -121,7 +122,7 @@ builder.Services.AddScoped<IStateStore, StateStore>();
 
 builder.Services.AddTransient<GoogleAuthService>();
 builder.Services.AddTransient<CognitoAuthService>();
-builder.Services.AddSingleton<AuthServiceFactory>();
+builder.Services.AddSingleton<ExternalAuthServiceResolver>();
 //builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 //builder.Services.AddScoped<ICognitoAuthService, CognitoAuthService>();  
 
@@ -141,51 +142,6 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         c.RoutePrefix = ""; // root
-
-        //Inject Google Login button dynamically
-        c.HeadContent = @"
-        <script>
-        window.addEventListener('load', () => {
-            const tryAddButton = () => {
-                const topbar = document.querySelector('.swagger-ui .topbar');
-                if (!topbar) {
-                    setTimeout(tryAddButton, 500);
-                    return;
-                }
-
-                if (!document.getElementById('google-login-btn')) {
-                    const btn = document.createElement('button');
-                    btn.id = 'google-login-btn';
-                    btn.innerText = 'Login with Google';
-                    btn.style.marginLeft = '10px';
-                    btn.style.background = '#4285F4';
-                    btn.style.color = 'white';
-                    btn.style.border = 'none';
-                    btn.style.padding = '8px 16px';
-                    btn.style.borderRadius = '5px';
-                    btn.style.cursor = 'pointer';
-                    btn.onclick = async () => {
-                        try {
-                            const response = await fetch('/api/auth/google/login');
-                            const data = await response.json();
-                            if (data.loginUrl) {
-                                window.open(data.loginUrl, '_blank');
-                            } else {
-                                alert('Login URL not found.');
-                            }
-                        } catch (err) {
-                            alert('Failed to fetch Google login URL.');
-                            console.error(err);
-                        }
-                    };
-                    topbar.appendChild(btn);
-                }
-            };
-
-            tryAddButton();
-        });
-        </script>";
-        //btn.onclick = () => window.location.href = '/api/auth/external/login';
 
     });     // Serve interactive Swagger UI
 }
