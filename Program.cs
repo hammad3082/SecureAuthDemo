@@ -106,7 +106,9 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("Role", "Admin"));
 });
 
-builder.Services.AddRedis(builder.Configuration);
+builder.Services.AddCacheServices(builder.Configuration);
+
+//builder.Services.AddRedis(builder.Configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -198,7 +200,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
-app.MapGet("test", () => "Hello there, This is working");
+//app.MapGet("test", () => "Hello there, This is working");
 app.MapControllers();
 
 app.Run();

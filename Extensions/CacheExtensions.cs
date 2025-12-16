@@ -23,7 +23,7 @@ namespace SecureAuthDemo.Extensions
                 if (useRedis)
                 {
                     var redis = sp.GetService<RedisService>(); // safe
-                    if (redis != null)
+                    if (redis.IsAvailable)
                     {
                         logger.LogInformation("Using Redis Cache");
                         return redis;
