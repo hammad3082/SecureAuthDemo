@@ -5,6 +5,7 @@ using SecureAuthDemo.Middleware;
 using Serilog;
 using System.Text.Json.Serialization;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Logging (Serilog)
@@ -41,6 +42,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // DI: repositories & services (simple)
 builder.Services.AddBusinessServices();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4200") // Angular app URL
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -62,6 +74,8 @@ if (app.Environment.IsDevelopment())
 }
 
 //app.UseRouting();
+
+app.UseCors(myAllowSpecificOrigins);
 
 // Logs HTTP requests
 app.UseSerilogRequestLogging();
