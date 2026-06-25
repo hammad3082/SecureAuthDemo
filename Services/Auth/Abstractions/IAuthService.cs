@@ -8,6 +8,6 @@ namespace SecureAuthDemo.Services.Auth.Abstractions
         Task<(string accessToken, string refreshToken)> LoginAsync(LoginRequest request);
         Task<bool> ValidateUserAsync(string username, string password);
         public Task<string> RefreshTokenAsync(string refreshToken);
-        Task<object> GenerateTokensForSSOUserAsync(string email, string name);
+        Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name);
     }
 }

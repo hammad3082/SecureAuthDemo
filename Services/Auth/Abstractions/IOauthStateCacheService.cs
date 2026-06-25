@@ -2,7 +2,7 @@
 
 namespace SecureAuthDemo.Services.Auth.Abstractions
 {
-    public interface IStateStore
+    public interface IOauthStateCacheService
     {
         Task SetStateAsync(string state, AuthProvider provider, TimeSpan ttl);
         Task<(bool Found, AuthProvider Provider)> TryGetProviderAsync(string state);

@@ -1,12 +1,11 @@
 ﻿
 using Microsoft.Extensions.Options;
 using SecureAuthDemo.Configuration;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text;
-using Google.Apis.Auth.OAuth2.Responses;
-using System.IdentityModel.Tokens.Jwt;
 using SecureAuthDemo.Services.Auth.Abstractions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace SecureAuthDemo.Services.Auth.External
 {
@@ -16,10 +15,10 @@ namespace SecureAuthDemo.Services.Auth.External
         private readonly HttpClient _httpClient;
         private readonly AwsCognitoSettings _awsCognitoSettings;
 
-        public CognitoAuthService(IOptions<AwsCognitoSettings> settings)
+        public CognitoAuthService(IHttpClientFactory httpClientFactory, IOptions<AwsCognitoSettings> settings)
         {
+            _httpClient = httpClientFactory.CreateClient();
             _awsCognitoSettings = settings.Value;
-            _httpClient = new HttpClient();
         }
 
         public string GetLoginUrl(string state)

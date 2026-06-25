@@ -119,7 +119,7 @@ namespace SecureAuthDemo.Services.Auth.Local
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public async Task<object> GenerateTokensForSSOUserAsync(string email, string name)
+        public async Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name)
         {
             //var user = await _userRepo.GetByEmailAsync(email);
             var user = await _userRepo.GetByUsernameAsync(name);
@@ -148,11 +148,7 @@ namespace SecureAuthDemo.Services.Auth.Local
 
             await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
 
-            return new
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
+            return (accessToken, refreshToken);
         }
     }
 }

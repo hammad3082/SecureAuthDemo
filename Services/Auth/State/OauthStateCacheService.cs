@@ -5,11 +5,11 @@ using System.Text.Json;
 
 namespace SecureAuthDemo.Services.Auth.State
 {
-    public class StateStore : IStateStore
+    public class OauthStateCacheService : IOauthStateCacheService
     {
         private readonly ICacheService _cache;
 
-        public StateStore(ICacheService cache)
+        public OauthStateCacheService(ICacheService cache)
         {
             _cache = cache;
         }

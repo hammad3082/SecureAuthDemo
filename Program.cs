@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using SecureAuthDemo.Constants;
 using SecureAuthDemo.Data;
 using SecureAuthDemo.Extensions;
 using SecureAuthDemo.Middleware;
 using Serilog;
 using System.Text.Json.Serialization;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Logging (Serilog)
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
@@ -16,10 +15,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddOpenApi();
-//builder.Services.AddControllers();
 builder.Services.AddControllers()
     .AddJsonOptions(opt =>
     {
@@ -34,24 +29,12 @@ builder.Services.AddSwaggerDocumentation();
 
 builder.Services.AddCacheServices(builder.Configuration);
 
-//builder.Services.AddRedis(builder.Configuration);
-
 builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// DI: repositories & services (simple)
 builder.Services.AddBusinessServices();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: myAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:4200") // Angular app URL
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
-});
+builder.Services.AddCustomCors(builder.Configuration);
 
 var app = builder.Build();
 
@@ -59,33 +42,28 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 app.UseRouting();
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
-    //app.MapOpenApi();
-    app.UseSwagger();       // Serve OpenAPI JSON
-    //app.UseSwaggerUI();     // Serve interactive Swagger UI
+    app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         c.RoutePrefix = ""; // root
-
-    });     // Serve interactive Swagger UI
+    });
 }
 
 //app.UseRouting();
 
-app.UseCors(myAllowSpecificOrigins);
-
-// Logs HTTP requests
+app.UseCors(AppPolicies.CorsPolicy);
 app.UseSerilogRequestLogging();
-
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
-//app.MapGet("test", () => "Hello there, This is working");
+
 app.MapControllers();
 
 app.Run();

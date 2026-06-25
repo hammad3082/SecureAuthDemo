@@ -15,8 +15,10 @@ namespace SecureAuthDemo.Extensions
 
             // Auth Services
             services.AddScoped<IAuthService, LocalAuthService>();
-            services.AddScoped<IStateStore, StateStore>();
-            services.AddScoped<ExternalAuthFlow>();
+            services.AddScoped<IOauthStateCacheService, OauthStateCacheService>();
+            services.AddScoped<ExternalAuthApplicationService>();
+
+            services.AddHttpClient();
 
             // External Providers
             services.AddTransient<GoogleAuthService>();

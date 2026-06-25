@@ -10,10 +10,12 @@ namespace SecureAuthDemo.Controllers
     [Route("api/auth/external")]
     public class ExternalAuthController : ControllerBase
     {
-        private readonly ExternalAuthFlow _flow;
-        public ExternalAuthController(ExternalAuthFlow flow)
+        private readonly ExternalAuthApplicationService _flow; 
+        private readonly IConfiguration _config;
+        public ExternalAuthController(ExternalAuthApplicationService flow, IConfiguration config)
         {
             _flow = flow;
+            _config = config;
         }
 
         [HttpGet("login")]
@@ -29,8 +31,13 @@ namespace SecureAuthDemo.Controllers
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
             var tokens = await _flow.HandleCallbackAsync(code, state);
-            
-            return Ok(tokens);
+
+            string baseRedirectUrl = _config["Authentication:ClientRedirectUrl"]
+                                        ?? "http://localhost:4200/auth/callback";
+
+            string angularCallbackUrl = $"{baseRedirectUrl}?accessToken={tokens.accessToken}&refreshToken={tokens.refreshToken}";
+
+            return Redirect(angularCallbackUrl);
         }
     }
 }

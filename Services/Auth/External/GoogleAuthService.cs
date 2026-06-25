@@ -12,10 +12,10 @@ namespace SecureAuthDemo.Services.Auth.External
         private readonly HttpClient _httpClient;
         private readonly GoogleAuthSettings _googleAuthSettings;
 
-        public GoogleAuthService(IOptions<GoogleAuthSettings> settings)
+        public GoogleAuthService(IHttpClientFactory httpClientFactory, IOptions<GoogleAuthSettings> settings)
         {
+            _httpClient = httpClientFactory.CreateClient();
             _googleAuthSettings = settings.Value;
-            _httpClient = new HttpClient();
         }
         public string GetLoginUrl(string state)
         {
