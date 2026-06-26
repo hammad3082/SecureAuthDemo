@@ -67,6 +67,20 @@ app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
 
+app.MapGet("/CorsOriginCheck", (IConfiguration config) =>
+{
+    var allowedOrigins = config.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
+                         ?? Array.Empty<string>();
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        time = DateTime.UtcNow,
+        environment = app.Environment.EnvironmentName,
+        configuredOrigins = allowedOrigins
+    });
+});
+
 app.MapControllers();
 
 app.Run();
