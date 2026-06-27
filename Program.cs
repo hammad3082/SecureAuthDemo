@@ -30,7 +30,10 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddCacheServices(builder.Configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddBusinessServices();
 
@@ -63,6 +66,20 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
+
+app.MapGet("/CorsOriginCheck", (IConfiguration config) =>
+{
+    var allowedOrigins = config.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
+                         ?? Array.Empty<string>();
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        time = DateTime.UtcNow,
+        environment = app.Environment.EnvironmentName,
+        configuredOrigins = allowedOrigins
+    });
+});
 
 app.MapControllers();
 

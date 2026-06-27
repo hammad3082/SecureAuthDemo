@@ -1,0 +1,40 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - render_release
+    paths-ignore:
+      - "**/*.md"
+      - "screenshots/**"
+      - ".github/**"
+      - "docs/**"
+      - "README.md"
+      - ".gitignore"
+      
+  workflow_dispatch:
+
+jobs:
+  trigger-deployment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Verify Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Trigger Render Deploy Webhook
+        run: |
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
