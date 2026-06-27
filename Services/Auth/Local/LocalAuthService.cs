@@ -1,18 +1,19 @@
 ﻿
+using Azure.Core;
+using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using SecureAuthDemo.Configuration;
+using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Models;
 using SecureAuthDemo.Repositories;
-using BCrypt.Net;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using SecureAuthDemo.Services.Auth.Abstractions;
+using SecureAuthDemo.Services.Cache;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using SecureAuthDemo.Configuration;
-using Microsoft.Extensions.Options;
-using Azure.Core;
-using SecureAuthDemo.Services.Cache;
-using SecureAuthDemo.Services.Auth.Abstractions;
 
 namespace SecureAuthDemo.Services.Auth.Local
 {
@@ -22,7 +23,8 @@ namespace SecureAuthDemo.Services.Auth.Local
         private readonly IUserRepository _userRepo;
         private readonly ICacheService _cacheService;
         private readonly JwtSettings _jwtSettings;
-        public LocalAuthService(IUserRepository userRepo, IOptions<JwtSettings> jwtOptions, ICacheService cacheService)
+        private readonly ILogger<LocalAuthService> _logger;
+        public LocalAuthService(IUserRepository userRepo, IOptions<JwtSettings> jwtOptions, ICacheService cacheService, ILogger<LocalAuthService> logger)
         {
             _userRepo = userRepo;
             _jwtSettings = jwtOptions.Value;
@@ -64,18 +66,23 @@ namespace SecureAuthDemo.Services.Auth.Local
         }
         public async Task<(string accessToken, string refreshToken)> LoginAsync(LoginRequest request)
         {
+            _logger.LogInformation("[START of Login], Checking for User in DB");
             var user = await _userRepo.GetByUsernameAsync(request.Username);
 
+            _logger.LogInformation("Got DB User Check Response");
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 throw new Exception("Invalid username or password");
             }
 
+            _logger.LogInformation("Generating JWT Token");
             var accessToken = GenerateJwtToken(user);
             var refreshToken = Guid.NewGuid().ToString();
 
+            _logger.LogInformation("Setting Refresh Token to Cache");
             await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
 
+            _logger.LogInformation("[END of Login]");
             return (accessToken, refreshToken);
         }
         public async Task<string> RefreshTokenAsync(string refreshToken)
