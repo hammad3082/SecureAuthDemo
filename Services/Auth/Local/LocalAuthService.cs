@@ -29,6 +29,7 @@ namespace SecureAuthDemo.Services.Auth.Local
             _userRepo = userRepo;
             _jwtSettings = jwtOptions.Value;
             _cacheService = cacheService;
+            _logger = logger;
         }
         public async Task RegisterAsync(RegisterRequest request)
         {
