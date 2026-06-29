@@ -1,4 +1,5 @@
 ﻿using SecureAuthDemo.Repositories;
+using SecureAuthDemo.Services;
 using SecureAuthDemo.Services.Auth.Abstractions;
 using SecureAuthDemo.Services.Auth.External;
 using SecureAuthDemo.Services.Auth.Local;
@@ -10,6 +11,8 @@ namespace SecureAuthDemo.Extensions
     {
         public static IServiceCollection AddBusinessServices(this IServiceCollection services)
         {
+            services.AddScoped<HealthService>();
+
             // Repositories
             services.AddScoped<IUserRepository, UserRepository>();
 
