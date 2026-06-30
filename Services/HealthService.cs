@@ -20,6 +20,10 @@ namespace SecureAuthDemo.Services
                 _logger.LogInformation("WARMUP: Start Of DB Exec");
                 await _db.Database.ExecuteSqlRawAsync("SELECT 1;");
                 _logger.LogInformation("WARMUP: End Of DB Exec");
+
+                await _db.Users.AnyAsync(u => u.Username == "warmup_ping");
+                _logger.LogInformation("WARMUP: End Of User DB Exec");
+
                 return true;
             }
             catch (Exception ex)

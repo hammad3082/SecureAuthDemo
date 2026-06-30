@@ -131,9 +131,11 @@ namespace SecureAuthDemo.Services.Auth.Local
         {
             //var user = await _userRepo.GetByEmailAsync(email);
             var user = await _userRepo.GetByUsernameAsync(name);
+            _logger.LogInformation("Got user From DB");
 
             if (user == null)
             {
+                _logger.LogInformation("Creating new user to DB");
                 user = new User
                 {
                     Username = name,
@@ -150,12 +152,15 @@ namespace SecureAuthDemo.Services.Auth.Local
                 user = await _userRepo.GetByUsernameAsync(name);
             }
 
+            _logger.LogInformation("Create JWT Token");
             var accessToken = GenerateJwtToken(user);
 
             var refreshToken = Guid.NewGuid().ToString();
 
+            _logger.LogInformation("Set refreshToken to redis");
             await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
 
+            _logger.LogInformation("Returning Tokens");
             return (accessToken, refreshToken);
         }
     }
