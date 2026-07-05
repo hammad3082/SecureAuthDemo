@@ -29,14 +29,15 @@ namespace SecureAuthDemo.Services.Auth.Local
             _userRepo = userRepo;
             _jwtSettings = jwtOptions.Value;
             _cacheService = cacheService;
+            _logger = logger;
         }
         public async Task RegisterAsync(RegisterRequest request)
         {
             try
             {
-                var exists = await _userRepo.GetByUsernameAsync(request.Username);
+                var exists = await _userRepo.GetByEmailAsync(request.Email);
                 if (exists != null)
-                    throw new Exception("User Already Exists");
+                    throw new Exception("Email Already Exists");
 
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -67,7 +68,7 @@ namespace SecureAuthDemo.Services.Auth.Local
         public async Task<(string accessToken, string refreshToken)> LoginAsync(LoginRequest request)
         {
             _logger.LogInformation("[START of Login], Checking for User in DB");
-            var user = await _userRepo.GetByUsernameAsync(request.Username);
+            var user = await _userRepo.GetByEmailAsync(request.Email);
 
             _logger.LogInformation("Got DB User Check Response");
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
@@ -129,10 +130,12 @@ namespace SecureAuthDemo.Services.Auth.Local
         public async Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name)
         {
             //var user = await _userRepo.GetByEmailAsync(email);
-            var user = await _userRepo.GetByUsernameAsync(name);
+            var user = await _userRepo.GetByEmailAsync(email);
+            _logger.LogInformation("Got user From DB");
 
             if (user == null)
             {
+                _logger.LogInformation("Creating new user to DB");
                 user = new User
                 {
                     Username = name,
@@ -146,15 +149,18 @@ namespace SecureAuthDemo.Services.Auth.Local
                 await _userRepo.SaveChangesAsync();
 
                 // To get userID
-                user = await _userRepo.GetByUsernameAsync(name);
+                user = await _userRepo.GetByEmailAsync(email);
             }
 
+            _logger.LogInformation("Create JWT Token");
             var accessToken = GenerateJwtToken(user);
 
             var refreshToken = Guid.NewGuid().ToString();
 
+            _logger.LogInformation("Set refreshToken to redis");
             await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
 
+            _logger.LogInformation("Returning Tokens");
             return (accessToken, refreshToken);
         }
     }

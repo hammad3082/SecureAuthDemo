@@ -30,9 +30,13 @@ namespace SecureAuthDemo.Services.Auth.External
 
             await _stateStore.SetStateAsync(state, provider, StateTtl);
 
+            _logger.LogInformation("Getting Login provider");
             var service = _resolver.Get(provider);
+
+            _logger.LogInformation("Getting Login Url");
             var url = service.GetLoginUrl(state);
 
+            _logger.LogInformation("Returning Login Url");
             return url;
         }
 
@@ -54,12 +58,13 @@ namespace SecureAuthDemo.Services.Auth.External
 
             try
             {
+                _logger.LogInformation("Getting Login User Info");
                 var userInfo = await service.GetUserInfoAsync(code);
 
                 if (userInfo.Email == null)
                     throw new Exception("Invalid token");
 
-                // Create a JWT and refresh token for this user
+                _logger.LogInformation("Create a JWT and refresh token for this user");
                 return await _authService.GenerateTokensForSSOUserAsync(userInfo.Email, userInfo.Name);
             }
             catch (Exception ex)
