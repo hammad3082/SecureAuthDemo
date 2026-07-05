@@ -1,9 +1,4 @@
-﻿
-using Azure.Core;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SecureAuthDemo.Configuration;
 using SecureAuthDemo.Middleware;
