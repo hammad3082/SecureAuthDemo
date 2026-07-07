@@ -35,6 +35,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //builder.Services.AddDbContext<AppDbContext>(options =>
 //            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddAuditServices(builder.Configuration);
+
 builder.Services.AddBusinessServices();
 
 builder.Services.AddCustomCors(builder.Configuration);
@@ -61,6 +63,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(AppPolicies.CorsPolicy);
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+
+app.UseMiddleware<AuditLogMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

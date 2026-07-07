@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SecureAuthDemo.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace SecureAuthDemo.Models
 {
@@ -30,6 +31,8 @@ namespace SecureAuthDemo.Models
         
         [MaxLength(1000)] 
         public string UserAgent { get; set; } = string.Empty;//Captures browser and OS signatures
+        
+        public AuditLogPriority Priority { get; set; } = AuditLogPriority.Medium;
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
