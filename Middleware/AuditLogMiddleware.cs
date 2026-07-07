@@ -5,12 +5,17 @@ namespace SecureAuthDemo.Middleware
     public class AuditLogMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly AuditLogQueue _queue;
 
-        public AuditLogMiddleware(RequestDelegate next, AuditLogQueue queue)
+        public AuditLogMiddleware(RequestDelegate next)
         {
             _next = next;
-            _queue = queue;
+        }
+
+        public async Task InvokeAsync(HttpContext context, IAuditLogService auditLogService)
+        {
+            await _next(context);
+
+            await auditLogService.ProcessAndQueueLogAsync(context);
         }
     }
 }

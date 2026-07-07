@@ -17,23 +17,36 @@
         {
             _logger.LogInformation("Audit Log Background Processor is starting...");
 
-            await foreach (var log in _queue.DequeueAllLogsAsync(stoppingToken)) 
+            try
             {
-                try
+                await foreach (var log in _queue.DequeueAllLogsAsync(stoppingToken))
                 {
-                    await using (var scope = _serviceProvider.CreateAsyncScope())
+                    try
                     {
-
+                        await using (var scope = _serviceProvider.CreateAsyncScope())
+                        {
+                            var auditService = scope.ServiceProvider.GetRequiredService<IAuditLogService>();
+                            await auditService.SaveLogToDatabaseAsync(log);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to save individual audit log to the database. Continuing processing loop.");
                     }
                 }
-                catch (Exception)
-                {
-
-                    throw;
-                }
             }
-
-            _logger.LogInformation("Audit Log Background Processor has shut down cleanly.");
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Audit Log Background Processor cancellation requested.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Catastrophic error occurred in the Audit Log Background Processor loop!");
+            }
+            finally
+            {
+                _logger.LogInformation("Audit Log Background Processor has shut down cleanly.");
+            }
         }
     }
 }
