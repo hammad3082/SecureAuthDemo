@@ -43,6 +43,8 @@ builder.Services.AddCustomCors(builder.Configuration);
 
 builder.Services.AddProxyHeadersConfiguration(builder.Configuration);
 
+builder.Services.AddUserContextAccessor();
+
 var app = builder.Build();
 
 app.UseForwardedHeaders();

@@ -83,10 +83,10 @@ namespace SecureAuthDemo.Services.Auditing
                 return (AuditLogPriority.Medium, AuditEventTypes.ApiAccess);
             }
 
-            //if (method == HttpMethods.Get && path.StartsWith("/api/admin", StringComparison.OrdinalIgnoreCase))
-            //{
-            //    return (AuditLogPriority.Low, AuditEventTypes.AdminAccess);
-            //}
+            if (method == HttpMethods.Get)// && path.StartsWith("/api/admin", StringComparison.OrdinalIgnoreCase))
+            {
+                return (AuditLogPriority.Low, AuditEventTypes.AdminAccess);
+            }
 
             return null;
         }

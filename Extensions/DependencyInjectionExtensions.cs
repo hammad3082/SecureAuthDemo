@@ -5,6 +5,7 @@ using SecureAuthDemo.Services.Auth.Abstractions;
 using SecureAuthDemo.Services.Auth.External;
 using SecureAuthDemo.Services.Auth.Local;
 using SecureAuthDemo.Services.Auth.State;
+using SecureAuthDemo.Services.Infrastructure;
 
 namespace SecureAuthDemo.Extensions
 {
@@ -44,6 +45,15 @@ namespace SecureAuthDemo.Extensions
                     options.KnownNetworks.Clear();
                 }
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddUserContextAccessor(this IServiceCollection services)
+        {
+            services.AddHttpContextAccessor();
+
+            services.AddScoped<UserContextAccessor>();
 
             return services;
         }
