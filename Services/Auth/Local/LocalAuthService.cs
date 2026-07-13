@@ -122,7 +122,8 @@ namespace SecureAuthDemo.Services.Auth.Local
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
-
+           
+            //new Claim(ClaimTypes.Role, "Admin")
             var RoleClaim = new Claim("Role", "Admin");
 
             claims.Add(RoleClaim);

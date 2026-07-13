@@ -67,6 +67,13 @@ namespace SecureAuthDemo.Services.Auditing
             await _auditLogRepository.SaveChangesAsync();
         }
 
+        public Task<PaginatedEnvelope> GetLogsByUserIdAsync(int userId, AuditLogQueryRequest request)
+        {
+            if (request.PageSize < 1) request.PageSize = 10;
+
+            return GetLogsByUserIdAsync(userId, request);
+        }
+
         private (AuditLogPriority Priority, string EventType)? EvaluatePipelineMetrics(string method, int statusCode, string path)
         {
             if (statusCode == StatusCodes.Status401Unauthorized || statusCode == StatusCodes.Status403Forbidden)

@@ -7,5 +7,6 @@ namespace SecureAuthDemo.Repositories
     {
         Task AddAsync(AuditLog log);
         Task SaveChangesAsync();
+        Task<PaginatedEnvelope> GetLogsByUserIdAsync(int userId, AuditLogQueryRequest request);
     }
 }
