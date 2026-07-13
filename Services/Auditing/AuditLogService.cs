@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using SecureAuthDemo.Configuration;
 using SecureAuthDemo.Constants;
+using SecureAuthDemo.Entities;
 using SecureAuthDemo.Enums;
 using SecureAuthDemo.Models;
 using SecureAuthDemo.Repositories;

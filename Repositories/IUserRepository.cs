@@ -1,4 +1,4 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Entities;
 
 namespace SecureAuthDemo.Repositories
 {

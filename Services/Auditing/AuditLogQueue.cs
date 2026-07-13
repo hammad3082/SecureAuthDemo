@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
-using SecureAuthDemo.Models;
 using System.Threading.Channels;
 using SecureAuthDemo.Configuration;
 using Microsoft.Extensions.Options;
+using SecureAuthDemo.Entities;
 
 namespace SecureAuthDemo.Services.Auditing
 {

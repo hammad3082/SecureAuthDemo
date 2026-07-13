@@ -1,7 +1,7 @@
 ﻿using SecureAuthDemo.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace SecureAuthDemo.Models
+namespace SecureAuthDemo.Entities
 {
     public class AuditLog
     {
@@ -14,8 +14,8 @@ namespace SecureAuthDemo.Models
         [MaxLength(50)]
         public string EventType { get; set; } = string.Empty;//"Login.Success", "API.Access"
         
-        [MaxLength(1000)]
-        public string Description { get; set; } = string.Empty;//"User logged in via Google SSO"
+        //[MaxLength(1000)]
+        //public string Description { get; set; } = string.Empty;//"User logged in via Google SSO"
 
         // AI Optimization Fields (Tracking specific API footprint patterns)
         [MaxLength(10)]

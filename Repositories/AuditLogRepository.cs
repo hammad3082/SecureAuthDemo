@@ -1,4 +1,5 @@
 ﻿using SecureAuthDemo.Data;
+using SecureAuthDemo.Data;
 using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Repositories

@@ -1,4 +1,5 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Entities;
+using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Services.Auditing
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SecureAuthDemo.Data;
-using SecureAuthDemo.Models;
+using SecureAuthDemo.Entities;
 
 namespace SecureAuthDemo.Repositories
 {

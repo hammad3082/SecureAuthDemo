@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SecureAuthDemo.Configuration;
+using SecureAuthDemo.Entities;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Models;
 using SecureAuthDemo.Repositories;

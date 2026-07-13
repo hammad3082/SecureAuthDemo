@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecureAuthDemo.Models;
+using SecureAuthDemo.Entities;
 
 namespace SecureAuthDemo.Data
 {

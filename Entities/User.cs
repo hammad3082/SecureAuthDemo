@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecureAuthDemo.Models
+namespace SecureAuthDemo.Entities
 {
     public class User
     {
