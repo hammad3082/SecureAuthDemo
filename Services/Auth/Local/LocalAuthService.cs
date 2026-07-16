@@ -121,7 +121,7 @@ namespace SecureAuthDemo.Services.Auth.Local
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
+                //new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
            
