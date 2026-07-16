@@ -21,6 +21,9 @@ namespace SecureAuthDemo.Controllers
         [HttpGet("login")]
         public async Task<IActionResult> Login([FromQuery] AuthProvider provider)
         {
+            if (provider == AuthProvider.Local)
+                return BadRequest(new { message = "Use the standard login endpoint for local accounts." });
+
             var url = await _flow.StartLoginAsync(provider);
 
             //return Redirect(url);

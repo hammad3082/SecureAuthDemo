@@ -1,4 +1,4 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Entities;
 using System.Security.Claims;
 
 namespace SecureAuthDemo.Services.Infrastructure

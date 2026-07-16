@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SecureAuthDemo.Data;
 using SecureAuthDemo.Entities;
+using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Repositories
 {
@@ -25,6 +26,17 @@ namespace SecureAuthDemo.Repositories
         public async Task<User> GetByEmailAsync(string email)
         {
             return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+        }
+        public async Task<UserSecurityDetails?> GetSecurityDetailsByIdAsync(int userId)
+        {
+            return await _db.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new UserSecurityDetails(
+                    u.Username,
+                    u.LoginProvider.ToString(),
+                    u.IsTwoFactorEnabled
+                ))
+                .FirstOrDefaultAsync();
         }
         public async Task SaveChangesAsync()
         {

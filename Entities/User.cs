@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SecureAuthDemo.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace SecureAuthDemo.Entities
 {
@@ -15,5 +16,9 @@ namespace SecureAuthDemo.Entities
         [MaxLength(255)]
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [MaxLength(15)]
+        public AuthProvider LoginProvider { get; set; } = AuthProvider.Local;
+        public bool IsTwoFactorEnabled { get; set; } = false;
     }
 }
