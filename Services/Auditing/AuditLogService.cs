@@ -44,7 +44,7 @@ namespace SecureAuthDemo.Services.Auditing
             var log = new AuditLog
             {
                 EventType = rules.Value.EventType,
-                Description = $"User '{username}' triggered {method} on {path}. Status: {statusCode}",
+                // Description = $"User '{username}' triggered {method} on {path}. Status: {statusCode}",
                 RequestMethod = method,
                 RequestPath = path,
                 StatusCode = statusCode,
@@ -67,11 +67,11 @@ namespace SecureAuthDemo.Services.Auditing
             await _auditLogRepository.SaveChangesAsync();
         }
 
-        public Task<PaginatedEnvelope> GetLogsByUserIdAsync(int userId, AuditLogQueryRequest request)
+        public async Task<PaginatedEnvelope> GetLogsByUserIdAsync(int userId, AuditLogQueryRequest request)
         {
             if (request.PageSize < 1) request.PageSize = 10;
 
-            return GetLogsByUserIdAsync(userId, request);
+            return await _auditLogRepository.GetLogsByUserIdAsync(userId, request);
         }
 
         private (AuditLogPriority Priority, string EventType)? EvaluatePipelineMetrics(string method, int statusCode, string path)
