@@ -1,4 +1,5 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Entities;
+using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Repositories
 {
@@ -8,6 +9,7 @@ namespace SecureAuthDemo.Repositories
         Task<User> GetByIdAsync(int userId);
         Task<User> GetByEmailAsync(string email);
         Task AddAsync(User user);
+        Task<UserSecurityDetails?> GetSecurityDetailsByIdAsync(int userId);
         Task SaveChangesAsync();
     }
 }

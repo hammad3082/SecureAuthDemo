@@ -1,4 +1,5 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Entities;
+using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Repositories
 {
@@ -6,5 +7,6 @@ namespace SecureAuthDemo.Repositories
     {
         Task AddAsync(AuditLog log);
         Task SaveChangesAsync();
+        Task<PaginatedEnvelope> GetLogsByUserIdAsync(int userId, AuditLogQueryRequest request);
     }
 }

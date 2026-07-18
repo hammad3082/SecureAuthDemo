@@ -1,4 +1,5 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Entities;
+using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Services.Auditing
 {
@@ -6,5 +7,6 @@ namespace SecureAuthDemo.Services.Auditing
     {
         Task ProcessAndQueueLogAsync(HttpContext context);
         Task SaveLogToDatabaseAsync(AuditLog log);
+        Task<PaginatedEnvelope> GetLogsByUserIdAsync(int userId, AuditLogQueryRequest request);
     }
 }

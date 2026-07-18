@@ -65,7 +65,7 @@ namespace SecureAuthDemo.Services.Auth.External
                     throw new Exception("Invalid token");
 
                 _logger.LogInformation("Create a JWT and refresh token for this user");
-                return await _authService.GenerateTokensForSSOUserAsync(userInfo.Email, userInfo.Name);
+                return await _authService.GenerateTokensForSSOUserAsync(userInfo.Email, userInfo.Name, provider);
             }
             catch (Exception ex)
             {

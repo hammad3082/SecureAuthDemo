@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecureAuthDemo.Models;
+using SecureAuthDemo.Entities;
 
 namespace SecureAuthDemo.Data
 {
@@ -14,7 +14,12 @@ namespace SecureAuthDemo.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-                
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.LoginProvider)
+                .HasConversion<string>()
+                .HasMaxLength(15);
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique()

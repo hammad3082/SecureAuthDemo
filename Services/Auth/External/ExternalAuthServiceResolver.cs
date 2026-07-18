@@ -23,6 +23,9 @@ namespace SecureAuthDemo.Services.Auth.External
                 case AuthProvider.Cognito:
                     return _cognito;
 
+                case AuthProvider.Local:
+                    throw new InvalidOperationException("Local authentication does not use an external auth provider.");
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(provider), "Unsupported provider");
             }

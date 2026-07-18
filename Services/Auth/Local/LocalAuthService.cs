@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SecureAuthDemo.Configuration;
+using SecureAuthDemo.Entities;
+using SecureAuthDemo.Enums;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Models;
 using SecureAuthDemo.Repositories;
@@ -51,6 +53,7 @@ namespace SecureAuthDemo.Services.Auth.Local
                     PasswordHash = hashedPassword,
                     Email = request.Email,
                     CreatedAt = DateTime.UtcNow,
+                    LoginProvider = AuthProvider.Local
                 };
 
                 await _userRepo.AddAsync(newUser);
@@ -118,10 +121,11 @@ namespace SecureAuthDemo.Services.Auth.Local
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
+                //new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
-
+           
+            //new Claim(ClaimTypes.Role, "Admin")
             var RoleClaim = new Claim("Role", "Admin");
 
             claims.Add(RoleClaim);
@@ -138,7 +142,7 @@ namespace SecureAuthDemo.Services.Auth.Local
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public async Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name)
+        public async Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name, AuthProvider provider)
         {
             //var user = await _userRepo.GetByEmailAsync(email);
             var user = await _userRepo.GetByEmailAsync(email);
@@ -153,6 +157,7 @@ namespace SecureAuthDemo.Services.Auth.Local
                     Email = email,
                     PasswordHash = "",
                     CreatedAt = DateTime.UtcNow,
+                    LoginProvider = provider
                     //Role = "User"
                 };
 
