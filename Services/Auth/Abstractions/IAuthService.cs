@@ -1,4 +1,5 @@
-﻿using SecureAuthDemo.Models;
+﻿using SecureAuthDemo.Enums;
+using SecureAuthDemo.Models;
 
 namespace SecureAuthDemo.Services.Auth.Abstractions
 {
@@ -6,8 +7,8 @@ namespace SecureAuthDemo.Services.Auth.Abstractions
     {
         Task RegisterAsync(RegisterRequest request);
         Task<(string accessToken, string refreshToken)> LoginAsync(LoginRequest request);
-        Task<bool> ValidateUserAsync(string username, string password);
+        //Task<bool> ValidateUserAsync(string username, string password);
         public Task<string> RefreshTokenAsync(string refreshToken);
-        Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name);
+        Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name, AuthProvider provider);
     }
 }

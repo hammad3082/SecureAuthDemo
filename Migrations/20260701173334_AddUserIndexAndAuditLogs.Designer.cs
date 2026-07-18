@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SecureAuthDemo.Data;
@@ -11,9 +12,11 @@ using SecureAuthDemo.Data;
 namespace SecureAuthDemo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260701173334_AddUserIndexAndAuditLogs")]
+    partial class AddUserIndexAndAuditLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,13 +25,18 @@ namespace SecureAuthDemo.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SecureAuthDemo.Entities.AuditLog", b =>
+            modelBuilder.Entity("SecureAuthDemo.Models.AuditLog", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("EventType")
                         .IsRequired()
@@ -39,9 +47,6 @@ namespace SecureAuthDemo.Migrations
                         .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer");
 
                     b.Property<string>("RequestMethod")
                         .IsRequired()
@@ -75,7 +80,7 @@ namespace SecureAuthDemo.Migrations
                     b.ToTable("AuditLogs");
                 });
 
-            modelBuilder.Entity("SecureAuthDemo.Entities.User", b =>
+            modelBuilder.Entity("SecureAuthDemo.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,14 +95,6 @@ namespace SecureAuthDemo.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
-
-                    b.Property<bool>("IsTwoFactorEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LoginProvider")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("character varying(15)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -120,9 +117,9 @@ namespace SecureAuthDemo.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("SecureAuthDemo.Entities.AuditLog", b =>
+            modelBuilder.Entity("SecureAuthDemo.Models.AuditLog", b =>
                 {
-                    b.HasOne("SecureAuthDemo.Entities.User", "User")
+                    b.HasOne("SecureAuthDemo.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 

@@ -1,16 +1,14 @@
-﻿
-using Azure.Core;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SecureAuthDemo.Configuration;
+using SecureAuthDemo.Entities;
+using SecureAuthDemo.Enums;
 using SecureAuthDemo.Middleware;
 using SecureAuthDemo.Models;
 using SecureAuthDemo.Repositories;
 using SecureAuthDemo.Services.Auth.Abstractions;
 using SecureAuthDemo.Services.Cache;
+using SecureAuthDemo.Services.Infrastructure;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -23,12 +21,20 @@ namespace SecureAuthDemo.Services.Auth.Local
         private readonly IUserRepository _userRepo;
         private readonly ICacheService _cacheService;
         private readonly JwtSettings _jwtSettings;
+        private readonly UserContextAccessor _userContextAccessor;
         private readonly ILogger<LocalAuthService> _logger;
-        public LocalAuthService(IUserRepository userRepo, IOptions<JwtSettings> jwtOptions, ICacheService cacheService, ILogger<LocalAuthService> logger)
+        public LocalAuthService(
+            IUserRepository userRepo, 
+            IOptions<JwtSettings> jwtOptions, 
+            ICacheService cacheService,
+            UserContextAccessor userContextAccessor,
+            ILogger<LocalAuthService> logger
+            )
         {
             _userRepo = userRepo;
             _jwtSettings = jwtOptions.Value;
             _cacheService = cacheService;
+            _userContextAccessor = userContextAccessor;
             _logger = logger;
         }
         public async Task RegisterAsync(RegisterRequest request)
@@ -47,24 +53,27 @@ namespace SecureAuthDemo.Services.Auth.Local
                     PasswordHash = hashedPassword,
                     Email = request.Email,
                     CreatedAt = DateTime.UtcNow,
+                    LoginProvider = AuthProvider.Local
                 };
 
                 await _userRepo.AddAsync(newUser);
                 await _userRepo.SaveChangesAsync();
+
+                _userContextAccessor.SetCurrentUser(newUser);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public async Task<bool> ValidateUserAsync(string username, string password)
-        {
-            var user = await _userRepo.GetByUsernameAsync(username);
-            if (user != null)
-                return false;
+        //public async Task<bool> ValidateUserAsync(string username, string password)
+        //{
+        //    var user = await _userRepo.GetByUsernameAsync(username);
+        //    if (user != null)
+        //        return false;
 
-            return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-        }
+        //    return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+        //}
         public async Task<(string accessToken, string refreshToken)> LoginAsync(LoginRequest request)
         {
             _logger.LogInformation("[START of Login], Checking for User in DB");
@@ -83,6 +92,9 @@ namespace SecureAuthDemo.Services.Auth.Local
             _logger.LogInformation("Setting Refresh Token to Cache");
             await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
 
+            _logger.LogInformation("Setting User context manually");
+            _userContextAccessor.SetCurrentUser(user);
+
             _logger.LogInformation("[END of Login]");
             return (accessToken, refreshToken);
         }
@@ -98,6 +110,8 @@ namespace SecureAuthDemo.Services.Auth.Local
 
             var newAccessToken = GenerateJwtToken(user);
 
+            _userContextAccessor.SetCurrentUser(user);
+
             return newAccessToken;
         }
         private string GenerateJwtToken(User user)
@@ -107,10 +121,11 @@ namespace SecureAuthDemo.Services.Auth.Local
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
+                //new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
-
+           
+            //new Claim(ClaimTypes.Role, "Admin")
             var RoleClaim = new Claim("Role", "Admin");
 
             claims.Add(RoleClaim);
@@ -127,7 +142,7 @@ namespace SecureAuthDemo.Services.Auth.Local
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-        public async Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name)
+        public async Task<(string accessToken, string refreshToken)> GenerateTokensForSSOUserAsync(string email, string name, AuthProvider provider)
         {
             //var user = await _userRepo.GetByEmailAsync(email);
             var user = await _userRepo.GetByEmailAsync(email);
@@ -142,6 +157,7 @@ namespace SecureAuthDemo.Services.Auth.Local
                     Email = email,
                     PasswordHash = "",
                     CreatedAt = DateTime.UtcNow,
+                    LoginProvider = provider
                     //Role = "User"
                 };
 
@@ -149,7 +165,7 @@ namespace SecureAuthDemo.Services.Auth.Local
                 await _userRepo.SaveChangesAsync();
 
                 // To get userID
-                user = await _userRepo.GetByEmailAsync(email);
+                //user = await _userRepo.GetByEmailAsync(email);
             }
 
             _logger.LogInformation("Create JWT Token");
@@ -159,6 +175,9 @@ namespace SecureAuthDemo.Services.Auth.Local
 
             _logger.LogInformation("Set refreshToken to redis");
             await _cacheService.SetAsync(refreshToken, user.Id.ToString(), TimeSpan.FromDays(7));
+
+            _logger.LogInformation("Setting user context manually");
+            _userContextAccessor.SetCurrentUser(user);
 
             _logger.LogInformation("Returning Tokens");
             return (accessToken, refreshToken);

@@ -35,11 +35,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //builder.Services.AddDbContext<AppDbContext>(options =>
 //            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddAuditServices(builder.Configuration);
+
 builder.Services.AddBusinessServices();
 
 builder.Services.AddCustomCors(builder.Configuration);
 
+builder.Services.AddProxyHeadersConfiguration(builder.Configuration);
+
+builder.Services.AddUserContextAccessor();
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
@@ -62,24 +70,12 @@ app.UseCors(AppPolicies.CorsPolicy);
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
+app.UseMiddleware<AuditLogMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
-
-app.MapGet("/CorsOriginCheck", (IConfiguration config) =>
-{
-    var allowedOrigins = config.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
-                         ?? Array.Empty<string>();
-
-    return Results.Ok(new
-    {
-        status = "Healthy",
-        time = DateTime.UtcNow,
-        environment = app.Environment.EnvironmentName,
-        configuredOrigins = allowedOrigins
-    });
-});
 
 app.MapControllers();
 
