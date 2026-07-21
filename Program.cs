@@ -3,6 +3,7 @@ using SecureAuthDemo.Constants;
 using SecureAuthDemo.Data;
 using SecureAuthDemo.Extensions;
 using SecureAuthDemo.Middleware;
+using SecureAuthDemo.Services.Presence;
 using Serilog;
 using System.Text.Json.Serialization;
 
