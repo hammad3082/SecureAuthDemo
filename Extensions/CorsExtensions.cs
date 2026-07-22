@@ -21,8 +21,8 @@ namespace SecureAuthDemo.Extensions
                         {
                             policy.WithOrigins(allowedOrigins)
                                   .AllowAnyHeader()
-                                  .AllowAnyMethod();
-                                  //.AllowCredentials();
+                                  .AllowAnyMethod()
+                                  .AllowCredentials();
                         }
                     });
             });

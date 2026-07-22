@@ -19,7 +19,13 @@ namespace SecureAuthDemo.Services.Cache
 
         public Task<string?> GetAsync(string key)
         {
-            return Task.FromResult(_cache.TryGetValue(key, out string? value) ? value : null);
+
+            if (_cache.TryGetValue(key, out object? value) && value != null)
+            {
+                return Task.FromResult<string?>(value.ToString());
+            }
+
+            return Task.FromResult<string?>(null);
         }
 
         public Task RemoveAsync(string key)
