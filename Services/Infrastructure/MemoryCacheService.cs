@@ -19,13 +19,36 @@ namespace SecureAuthDemo.Services.Cache
 
         public Task<string?> GetAsync(string key)
         {
-            return Task.FromResult(_cache.TryGetValue(key, out string? value) ? value : null);
+
+            if (_cache.TryGetValue(key, out object? value) && value != null)
+            {
+                return Task.FromResult<string?>(value.ToString());
+            }
+
+            return Task.FromResult<string?>(null);
         }
 
         public Task RemoveAsync(string key)
         {
             _cache.Remove(key);
             return Task.CompletedTask;
+        }
+
+        public Task<long> IncrementAsync(string key)
+        {
+            _cache.TryGetValue(key, out long currentValue);
+            long newValue = currentValue + 1;
+            _cache.Set(key, newValue);
+            return Task.FromResult(newValue);
+        }
+
+        public Task<long> DecrementAsync(string key)
+        {
+            _cache.TryGetValue(key, out long currentValue);
+            long newValue = currentValue - 1;
+            if (newValue < 0) newValue = 0;
+            _cache.Set(key, newValue);
+            return Task.FromResult(newValue);
         }
     }
 }
