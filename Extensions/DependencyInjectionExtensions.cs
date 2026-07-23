@@ -6,6 +6,7 @@ using SecureAuthDemo.Services.Auth.External;
 using SecureAuthDemo.Services.Auth.Local;
 using SecureAuthDemo.Services.Auth.State;
 using SecureAuthDemo.Services.Infrastructure;
+using SecureAuthDemo.Services.Presence;
 using SecureAuthDemo.Services.Security;
 
 namespace SecureAuthDemo.Extensions
@@ -32,6 +33,9 @@ namespace SecureAuthDemo.Extensions
             services.AddSingleton<ExternalAuthServiceResolver>();
 
             services.AddScoped<ISecurityService, SecurityService>();
+
+            services.AddSignalR();
+            services.AddSingleton<IPresenceService, PresenceService>();
 
             return services;
         }

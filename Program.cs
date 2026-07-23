@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using SecureAuthDemo.Constants;
 using SecureAuthDemo.Data;
 using SecureAuthDemo.Extensions;
+using SecureAuthDemo.Hubs;
 using SecureAuthDemo.Middleware;
+using SecureAuthDemo.Services.Presence;
 using Serilog;
 using System.Text.Json.Serialization;
 
@@ -76,6 +78,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", time = DateTime.UtcNow }));
+app.MapHub<OnlineUserHub>("api/hubs/online-users");
 
 app.MapControllers();
 

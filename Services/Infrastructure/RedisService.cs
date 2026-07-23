@@ -25,5 +25,17 @@ namespace SecureAuthDemo.Services.Cache
         {
             await _db.KeyDeleteAsync(key);
         }
+
+        public async Task<long> IncrementAsync(string key)
+        {
+            // Under the hood, this uses the atomic Redis INCR command
+            return await _db.StringIncrementAsync(key);
+        }
+
+        public async Task<long> DecrementAsync(string key)
+        {
+            // Under the hood, this uses the atomic Redis DECR command
+            return await _db.StringDecrementAsync(key);
+        }
     }
 }
